@@ -1,16 +1,15 @@
-# meal_lab2
+# Meal Lab 2 – Flutter App
 
-A new Flutter project.
+A simple Flutter application that displays meal categories, meals by category, and detailed recipes using **TheMealDB** API.
 
-## Getting Started
+## Screenshots
 
-This project is a starting point for a Flutter application.
+![Categories](images/img.png)
 
-A few resources to get you started if this is your first Flutter project:
+![Meals](images/img_1.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![Details](images/img_2.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Random](images/img_3.png)
+
+![Search](images/img_4.png)
