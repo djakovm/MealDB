@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../models/favorite_meal.dart';
 import '../models/meal_summary.dart';
+import '../services/favorites_store.dart';
 import '../services/mealdb_api.dart';
 import '../widgets/network_image_card.dart';
 import '../widgets/search_field.dart';
+import 'favorites_screen.dart';
 import 'meal_detail_screen.dart';
 
 class MealsByCategoryScreen extends StatefulWidget {
@@ -58,9 +61,7 @@ class _MealsByCategoryScreenState extends State<MealsByCategoryScreen> {
     try {
       final results = await _api.searchMealsByName(q);
       final cat = widget.categoryName.toLowerCase();
-      final filtered = results
-          .where((m) => (m.category ?? '').toLowerCase() == cat)
-          .toList();
+      final filtered = results.where((m) => (m.category ?? '').toLowerCase() == cat).toList();
       setState(() => _shown = filtered);
     } catch (_) {
       final local = _base.where((m) => m.name.toLowerCase().contains(q.toLowerCase())).toList();
@@ -76,13 +77,24 @@ class _MealsByCategoryScreenState extends State<MealsByCategoryScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => MealDetailScreen(mealId: meal.id)));
   }
 
+  void _openFavorites() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FavoritesScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final cs = t.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.categoryName),
         actions: [
+          IconButton(
+            onPressed: _openFavorites,
+            icon: const Icon(Icons.favorite_outline),
+            tooltip: 'Favorites',
+          ),
           IconButton(
             onPressed: _openRandom,
             icon: const Icon(Icons.shuffle),
@@ -129,7 +141,7 @@ class _MealsByCategoryScreenState extends State<MealsByCategoryScreen> {
                       ? Center(
                     child: Text(
                       'No meals found.',
-                      style: t.textTheme.bodyLarge?.copyWith(color: t.colorScheme.onSurfaceVariant),
+                      style: t.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   )
                       : GridView.builder(
@@ -142,34 +154,62 @@ class _MealsByCategoryScreenState extends State<MealsByCategoryScreen> {
                     itemCount: _shown.length,
                     itemBuilder: (context, i) {
                       final m = _shown[i];
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => MealDetailScreen(mealId: m.id)),
+
+                      return ValueListenableBuilder(
+                        valueListenable: FavoritesStore.instance.favorites,
+                        builder: (context, _, __) {
+                          final isFav = FavoritesStore.instance.isFavorite(m.id);
+
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(18),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => MealDetailScreen(mealId: m.id)),
+                              );
+                            },
+                            child: Card(
+                              child: Stack(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      NetworkImageCard(
+                                        url: m.thumb,
+                                        height: 128,
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: Text(
+                                          m.name,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Material(
+                                      color: cs.surface.withOpacity(0.92),
+                                      shape: const CircleBorder(),
+                                      child: IconButton(
+                                        onPressed: () async {
+                                          await FavoritesStore.instance.toggle(
+                                            FavoriteMeal(id: m.id, name: m.name, thumb: m.thumb),
+                                          );
+                                        },
+                                        icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
                         },
-                        child: Card(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              NetworkImageCard(
-                                url: m.thumb,
-                                height: 128,
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Text(
-                                  m.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       );
                     },
                   ),

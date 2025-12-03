@@ -4,8 +4,9 @@ import '../models/category.dart';
 import '../services/mealdb_api.dart';
 import '../widgets/network_image_card.dart';
 import '../widgets/search_field.dart';
-import 'meals_by_category_screen.dart';
+import 'favorites_screen.dart';
 import 'meal_detail_screen.dart';
+import 'meals_by_category_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -41,13 +42,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => MealDetailScreen(mealId: meal.id)));
   }
 
+  void _openFavorites() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FavoritesScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meal categories'),
         actions: [
+          IconButton(
+            onPressed: _openFavorites,
+            icon: const Icon(Icons.favorite_outline),
+            tooltip: 'Favorites',
+          ),
           IconButton(
             onPressed: _openRandom,
             icon: const Icon(Icons.shuffle),
@@ -64,11 +75,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           if (snap.hasError) {
             return Center(child: Text('Error: ${snap.error}'));
           }
+
           final all = snap.data ?? [];
           final q = _query.trim().toLowerCase();
-          final filtered = q.isEmpty
-              ? all
-              : all.where((c) => c.name.toLowerCase().contains(q)).toList();
+          final filtered = q.isEmpty ? all : all.where((c) => c.name.toLowerCase().contains(q)).toList();
 
           return Padding(
             padding: const EdgeInsets.all(12),
