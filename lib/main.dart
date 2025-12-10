@@ -38,7 +38,7 @@ Future<void> main() async {
     },
   );
 
-  await NotificationService.instance.scheduleDailyReminder(hour: 20, minute: 0);
+  await NotificationService.instance.scheduleDailyReminder(hour: 00, minute: 2);
 
   runApp(const MealLabApp());
 }

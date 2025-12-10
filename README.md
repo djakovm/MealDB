@@ -10,6 +10,6 @@ A simple Flutter application that displays meal categories, meals by category, a
 
 ![Details](images/img_2.png)
 
-![Random](images/img_3.png)
+![Favorites](images/img_3.png)
 
-![Search](images/img_4.png)
+<video src="images/meal_lab_demo.mp4" controls width="600"></video>
