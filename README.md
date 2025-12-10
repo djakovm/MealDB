@@ -12,4 +12,4 @@ A simple Flutter application that displays meal categories, meals by category, a
 
 ![Favorites](images/img_3.png)
 
-<video src="images/meal_lab_demo.mp4" controls width="600"></video>
+[Meal Lab Demo Video](images/meal_lab_demo.mp4)
